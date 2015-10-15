@@ -61,7 +61,7 @@ Calculate and report the mean and median of the total number of steps taken per 
                 Activity[complete.cases(Activity),] %>% 
                         group_by(date) %>% 
                         summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
-        as.data.framew(MeanMedian_Raw)
+        as.data.frame(MeanMedian_Raw)
 ```
 
 ## What is the average daily activity pattern?
@@ -121,17 +121,13 @@ Create a new dataset that is equal to the original dataset but with the missing 
         
 Make a histogram of the total number of steps taken each day
 ```{r echo=TRUE}
-        SummarizedNA <- Summarized
+        Summarized <- Imputed %>% 
+                group_by(date) %>% 
+                summarize("Total Steps"=sum(steps))
         
-        Summarized <- Imputed[complete.cases(Imputed),] %>% 
-                group_by(interval) %>% 
-                summarize("Mean of Steps"=mean(steps))
-        
-        plot.new()
-        plot(x=Summarized$interval, y=Summarized$`Mean of Steps`,type="l",
-                xlab="Interval",
-                ylab="Number of Steps (mean)",
-                main="Average Steps Taken During Intervals (Imputed Data)"
+        hist(Summarized$'Total Steps',col="green",
+             main="Histogram of Number of Total Steps per Day (Imputed)",
+             xlab="Total Steps"
         )
 ``` 
 
