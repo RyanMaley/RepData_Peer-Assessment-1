@@ -61,7 +61,7 @@ Calculate and report the mean and median of the total number of steps taken per 
                 Activity[complete.cases(Activity),] %>% 
                         group_by(date) %>% 
                         summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
-        as.data.framew(MeanMedian_Raw)
+        as.data.frame(MeanMedian_Raw)
 ```
 
 ## What is the average daily activity pattern?
