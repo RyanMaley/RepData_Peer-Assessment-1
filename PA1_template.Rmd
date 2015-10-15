@@ -1,0 +1,208 @@
+---
+title: "PA1_template"
+author: "Ryan Maley"
+date: "October 12, 2015"
+output: html_document
+---
+
+# PA1_template
+## Desciption
+This is an Oct 2015 submission for the Coursera repdata-033 "Reproducible Research" Peer Assessment Project 1.
+
+## Loading and preprocessing the data
+The data was downloaded from the course web site at https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip
+
+The data is read with the following, The date column was converted to an actual date class.
+```{r echo=TRUE}
+        ZipArchive <- tempfile()
+        ZipLocation <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+        ZipArchive <- "repdata_data_activity.zip"
+
+        ## Use this next line if you wish to download file from original location
+        ## download.file(ZipLocation, ZipArchive)
+        
+        ## Read the data
+        Activity <- (read.csv(unz(ZipArchive,"activity.csv")))
+
+        ## Apply a proper date format
+        Activity$date  <- as.Date(Activity$date,"%Y-%m-%d")
+        library(dplyr)
+```
+
+
+## What is mean total number of steps taken per day?
+
+*Please note: For the following, missing values are ignored i.e. excluded.*
+
+Calculate the total number of steps taken per day
+```{r echo=TRUE}
+        library(dplyr)
+        Summarized <- Activity[complete.cases(Activity),] %>% 
+                group_by(date) %>% 
+                summarize("Total Steps"=sum(steps))
+        Summarized
+```
+
+Make a histogram of the total number of steps taken each day        
+```{r echo=TRUE}
+        hist(Summarized$'Total Steps',col="blue",
+             main="Histogram of Number of Total Steps per Day",
+             xlab="Total Steps"
+             )
+```
+
+
+Calculate and report the mean and median of the total number of steps taken per day
+```{r echo=TRUE}
+        ## Calculate but save for use later
+        MeanMedian_Raw <- 
+                Activity[complete.cases(Activity),] %>% 
+                        group_by(date) %>% 
+                        summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
+        MeanMedian_Raw
+```
+
+## What is the average daily activity pattern?
+
+Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r echo=TRUE}
+        Summarized <- Activity[complete.cases(Activity),] %>% 
+                group_by(interval) %>% 
+                summarize("Mean of Steps"=mean(steps))
+
+        plot(x=Summarized$interval, y=Summarized$`Mean of Steps`,type="l",
+                xlab="Interval",
+                ylab="Number of Steps (mean)",
+                main="Average Steps Taken During Intervals"
+        )
+
+```
+
+Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r echo=TRUE}
+        x <- Summarized[Summarized$`Mean of Steps`==max(Summarized$`Mean of Steps`),1]
+        cat("Interval with highest mean =",as.character(x))
+```
+
+## Imputing missing values
+Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r echo=TRUE}
+        x <- sum(!complete.cases(Activity))
+        cat("Number of rows with missing values =",as.character(x))
+``` 
+
+
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+Create a new dataset that is equal to the original dataset but with the missing data filled in.
+```{r echo=TRUE}
+        ## This uses the *mean* for a given interval to replace missing steps values (NAs)
+        ## 'Summarized' contains means of steps for each interval (see above)
+        Summarized <- as.data.frame(Summarized)
+
+        ## Create something to hold activity and imputed activity
+        Imputed <- Activity
+
+        ## Find rows with missing (NA) data and replace with mean for the interval
+        for (i in 1:nrow(Imputed)) {
+                if (is.na(Imputed$steps[i])) {
+                        ## Lookup the mean (in Summarized) for the interval of this row
+                        n <- Summarized[Summarized$interval==Imputed$interval[i],"Mean of Steps"]
+                        Imputed$steps[i]<- as.integer(round(n))
+                }
+        }
+
+``` 
+
+        
+Make a histogram of the total number of steps taken each day
+```{r echo=TRUE}
+        SummarizedNA <- Summarized
+        
+        Summarized <- Imputed[complete.cases(Imputed),] %>% 
+                group_by(interval) %>% 
+                summarize("Mean of Steps"=mean(steps))
+        
+        plot.new()
+        plot(x=Summarized$interval, y=Summarized$`Mean of Steps`,type="l",
+                xlab="Interval",
+                ylab="Number of Steps (mean)",
+                main="Average Steps Taken During Intervals (Imputed Data)"
+        )
+``` 
+
+
+Calculate and report the mean and median total number of steps taken per day. 
+```{r echo=TRUE}
+        MeanMedian_Imputed <- 
+                Imputed %>% 
+                group_by(date) %>% 
+                summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
+        MeanMedian_Imputed
+``` 
+
+
+Do these values differ from the estimates from the first part of the assignment? 
+```{r echo=TRUE}
+        summary(MeanMedian_Raw,2:3)
+        summary(MeanMedian_Imputed,2:3)
+``` 
+
+What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r echo=TRUE}
+        ## Create side-by-side plots for visual comparison
+        plot.new()
+        par(mfrow=c(1,2) )
+        
+        Summarized <- Activity[complete.cases(Activity),] %>% 
+                group_by(date) %>% 
+                summarize("Total Steps"=sum(steps))
+        hist(Summarized$'Total Steps',col="blue",
+             main="Total Steps per Day (all data)",
+             xlab="Total Steps"
+             )
+
+        Summarized <- Imputed %>% 
+                group_by(date) %>% 
+                summarize("Total Steps"=sum(steps))
+        hist(Summarized$'Total Steps',col="green",
+             main="Total Steps per Day (imputed)",
+             xlab="Total Steps"
+             )
+``` 
+s
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+```{r echo=TRUE}
+        # Create the names, doesnt seem to be an R constant available
+        DayOfWeek <- data.frame(
+                name=c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"),
+                part=c("weekday","weekday","weekday","weekday","weekday","weekend","weekend"))
+
+        ## Create the column
+        Imputed$WeekPart <- as.factor(weekdays(Imputed$date))
+        ## Set the value
+        Imputed$WeekPart <- DayOfWeek[Imputed$WeekPart,2]
+```
+
+    Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+```{r echo=TRUE}
+        ## Calculate and store the means by group
+        PlotSummary <- Imputed %>% 
+                group_by(WeekPart,interval) %>% 
+                summarize(StepsMean=mean(steps))
+
+        ## Use the lattice graphics for easier multiple panels
+        library(lattice)
+        xyplot(PlotSummary$StepsMean ~ PlotSummary$interval | PlotSummary$WeekPart, 
+               data=PlotSummary, type="l", layout=c(1:2),
+               ylab="Number of Steps (mean)",
+               xlab="Interval")
+```
+
+### End of Submission
