@@ -6,8 +6,10 @@ output: html_document
 ---
 
 # PA1_template
-## Desciption
+## Description
 This is an Oct 2015 submission for the Coursera repdata-033 "Reproducible Research" Peer Assessment Project 1.
+
+Author: *Ryan Maley*
 
 ## Loading and preprocessing the data
 The data was downloaded from the course web site at https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip
@@ -59,7 +61,7 @@ Calculate and report the mean and median of the total number of steps taken per 
                 Activity[complete.cases(Activity),] %>% 
                         group_by(date) %>% 
                         summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
-        MeanMedian_Raw
+        as.data.framew(MeanMedian_Raw)
 ```
 
 ## What is the average daily activity pattern?
@@ -176,7 +178,8 @@ s
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+For this part the weekdays() function may be of some help here. 
+Use the dataset with the filled-in missing values for this part.
 Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 ```{r echo=TRUE}
         # Create the names, doesnt seem to be an R constant available
@@ -190,7 +193,8 @@ Create a new factor variable in the dataset with two levels - "weekday" and "wee
         Imputed$WeekPart <- DayOfWeek[Imputed$WeekPart,2]
 ```
 
-    Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 ```{r echo=TRUE}
         ## Calculate and store the means by group
         PlotSummary <- Imputed %>% 

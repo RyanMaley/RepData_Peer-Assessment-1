@@ -6,8 +6,10 @@ output: html_document
 ---
 
 # PA1_template
-## Desciption
+## Description
 This is an Oct 2015 submission for the Coursera repdata-033 "Reproducible Research" Peer Assessment Project 1.
+
+Author: *Ryan Maley*
 
 ## Loading and preprocessing the data
 The data was downloaded from the course web site at https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip
@@ -28,19 +30,6 @@ The data is read with the following, The date column was converted to an actual 
         ## Apply a proper date format
         Activity$date  <- as.Date(Activity$date,"%Y-%m-%d")
         library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
 ```
 
 
@@ -96,25 +85,11 @@ Calculate and report the mean and median of the total number of steps taken per 
                 Activity[complete.cases(Activity),] %>% 
                         group_by(date) %>% 
                         summarize("Mean of Steps"=mean(steps),"Median of Steps"=median(steps))
-        MeanMedian_Raw
+        as.data.framew(MeanMedian_Raw)
 ```
 
 ```
-## Source: local data frame [53 x 3]
-## 
-##          date Mean of Steps Median of Steps
-##        (date)         (dbl)           (dbl)
-## 1  2012-10-02       0.43750               0
-## 2  2012-10-03      39.41667               0
-## 3  2012-10-04      42.06944               0
-## 4  2012-10-05      46.15972               0
-## 5  2012-10-06      53.54167               0
-## 6  2012-10-07      38.24653               0
-## 7  2012-10-09      44.48264               0
-## 8  2012-10-10      34.37500               0
-## 9  2012-10-11      35.77778               0
-## 10 2012-10-12      60.35417               0
-## ..        ...           ...             ...
+## Error in eval(expr, envir, enclos): could not find function "as.data.framew"
 ```
 
 ## What is the average daily activity pattern?
@@ -292,7 +267,8 @@ s
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+For this part the weekdays() function may be of some help here. 
+Use the dataset with the filled-in missing values for this part.
 Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
 ```r
@@ -307,7 +283,8 @@ Create a new factor variable in the dataset with two levels - "weekday" and "wee
         Imputed$WeekPart <- DayOfWeek[Imputed$WeekPart,2]
 ```
 
-    Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
 ```r
         ## Calculate and store the means by group
